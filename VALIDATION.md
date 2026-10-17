@@ -56,3 +56,15 @@ Local checks on Linux / Node 22.22.1, 2026-10-17:
 - Actual Linux desktop Obsidian: plugin-only backup/deploy/reload reports 0.1.4; declarative settings exposes the autoData toggle and two existing registration rows; synthetic dump renders with WebGL, displays frame 1 and q range [-0.4, 0.2], camera finite; after close zero synthetic tabs/widgets and zero active viewers. Settings search UI and separate popout/migration GUI were NOT RUN.
 
 New release workflow is pinned to official GitHub Action commits, validates tag/manifest/package versions, runs local-equivalent checks in an isolated public runner, attests only assets it builds, and publishes the three standard Obsidian assets. Workflow execution, attestation verification and directory review remain pending at this commit; no generated attestation is claimed until those commands succeed. Filesystem/clipboard notices describe required capabilities and remain expected. Prior release assets are preserved.
+
+### 0.1.4 GitHub Actions and downloaded asset verification
+
+[Attested release run 39023081019](https://github.com/dhwan0112/obsidian-atomview/actions/runs/39023081019) completed **successfully**, exit 0 from `gh run watch 39023081019 --repo dhwan0112/obsidian-atomview --exit-status`. CI passed metadata guard, clean npm install, lint/typecheck/46 tests/build, 21 browser checks, bundle inspection and production-dependency audit; it generated provenance and published a regular 0.1.4 release.
+
+Downloaded `main.js`, `manifest.json`, `styles.css` from that release. Each matches the locally tested and installed build byte-for-byte. For each downloaded file, `gh attestation verify <asset> --repo dhwan0112/obsidian-atomview --signer-workflow dhwan0112/obsidian-atomview/.github/workflows/release.yml` returned **exit 0**, verifying the expected repository and workflow identity. These are the only three release attachments.
+
+- `main.js`: `b42abad62ab002d798002ddd03acf0855d900785cb29312e2e4a92338d9c46f9`
+- `manifest.json`: `65869483a42fecac10009a2605abaceda5ec696712bc470a37ef9c1a3a2ed899`
+- `styles.css`: `8af072aa08c30c2d7502766db7e3a33dacbd3d600c1d2f5410c32fcc2fe57885`
+
+Community-directory rescan/acceptance remains NOT VERIFIED; broad filesystem and clipboard capability notices are expected.

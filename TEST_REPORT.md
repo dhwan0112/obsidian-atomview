@@ -32,3 +32,5 @@ See VALIDATION.md for the exact release checks and boundaries. Official lint: ze
 ## 0.1.4
 
 See VALIDATION.md for exact checks. Local 46/46 tests and 21/21 browser checks passed, lint zero errors (8 sentence-case warnings). Owner-window scheduling/cancellation regression passed. Actual Obsidian synthetic render/q/frame/cleanup and declarative definitions verified via CLI. Settings search UI, separate popout GUI, cross-platform and long-duration validation NOT RUN. Attested release workflow results are recorded separately when run.
+
+Attested 0.1.4 release workflow [39023081019](https://github.com/dhwan0112/obsidian-atomview/actions/runs/39023081019) succeeded. All three downloaded assets match local builds and pass `gh attestation verify` constrained to this repository and signer workflow (exit 0 each). Directory rescan/acceptance still NOT VERIFIED.
