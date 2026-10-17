@@ -1,5 +1,5 @@
 import type { Atom, Cell, Dataset, Frame, V3 } from "../model.ts";
-import { cart, num, integer, id, element, LIMITS } from "../model.ts";
+import { num, integer, element, LIMITS } from "../model.ts";
 export function xyz(text: string): Dataset {
   const lines = text.split(/\r?\n/);
   let p = 0,

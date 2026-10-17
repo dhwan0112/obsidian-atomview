@@ -1,0 +1,12 @@
+import fs from "node:fs/promises";
+import assert from "node:assert/strict";
+const manifest = JSON.parse(await fs.readFile("manifest.json", "utf8"));
+const pkg = JSON.parse(await fs.readFile("package.json", "utf8"));
+const lock = JSON.parse(await fs.readFile("package-lock.json", "utf8"));
+const tag = process.env.GITHUB_REF_NAME;
+assert.match(tag ?? "", /^\d+\.\d+\.\d+$/);
+assert.equal(tag, manifest.version);
+assert.equal(tag, pkg.version);
+assert.equal(tag, lock.version);
+assert.equal(tag, lock.packages[""].version);
+console.log(`Release metadata matches ${tag}`);

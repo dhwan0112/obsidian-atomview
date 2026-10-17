@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import crypto from "node:crypto";
 await fs.mkdir("test-artifacts", { recursive: true });
 const commands = [];
-for (const name of ["typecheck", "test", "build"]) {
+for (const name of ["lint", "typecheck", "test", "build"]) {
   const r = spawnSync("npm", ["run", name], { encoding: "utf8" });
   const log = (r.stdout ?? "") + (r.stderr ?? "");
   await fs.writeFile(`test-artifacts/${name}.log`, log);

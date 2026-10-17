@@ -1,6 +1,8 @@
+import { timersFor } from "./timers.ts";
+import type { TimerHost, TimerHandle } from "./timers.ts";
 import type { Dataset, Frame } from "./model.ts";
 export class TrajectoryController {
-  private timer: ReturnType<typeof setInterval> | undefined;
+  private timer: TimerHandle | undefined;
   private disposed = false;
   index = 0;
   fps = 5;
@@ -9,6 +11,7 @@ export class TrajectoryController {
   constructor(
     dataset: Dataset,
     change: (frame: Frame, index: number) => void | Promise<void>,
+    private readonly timers: TimerHost = timersFor(),
   ) {
     this.dataset = dataset;
     this.change = change;
@@ -35,12 +38,12 @@ export class TrajectoryController {
   }
   play() {
     if (this.disposed || this.timer || this.dataset.frames.length < 2) return;
-    this.timer = setInterval(() => {
+    this.timer = this.timers.setInterval(() => {
       void this.step(1);
     }, 1000 / this.fps);
   }
   pause() {
-    if (this.timer !== undefined) clearInterval(this.timer);
+    if (this.timer !== undefined) this.timers.clearInterval(this.timer);
     this.timer = undefined;
   }
   speed(fps: number) {
@@ -124,7 +127,7 @@ export function range(values: number[]): [number, number] {
 export class LazyTrajectoryController {
   index = 0;
   fps = 5;
-  private timer?: ReturnType<typeof setTimeout>;
+  private timer?: TimerHandle;
   private running = false;
   private disposed = false;
   private request?: AbortController;
@@ -135,6 +138,7 @@ export class LazyTrajectoryController {
     private getFrame: (index: number, signal: AbortSignal) => Promise<Frame>,
     private change: (frame: Frame, index: number) => void | Promise<void>,
     private fail: (e: unknown) => void,
+    private readonly timers: TimerHost = timersFor(),
   ) {}
   get playing() {
     return this.running;
@@ -172,14 +176,14 @@ export class LazyTrajectoryController {
       const start = Date.now();
       await this.step(1);
       if (this.running && !this.disposed && epoch === this.playbackEpoch)
-        this.timer = setTimeout(
+        this.timer = this.timers.setTimeout(
           () => {
             void tick();
           },
           Math.max(0, 1000 / this.fps - (Date.now() - start)),
         );
     };
-    this.timer = setTimeout(() => {
+    this.timer = this.timers.setTimeout(() => {
       void tick();
     }, 1000 / this.fps);
   }
@@ -188,7 +192,7 @@ export class LazyTrajectoryController {
     ++this.playbackEpoch;
     this.request?.abort();
     ++this.sequence;
-    if (this.timer !== undefined) clearTimeout(this.timer);
+    if (this.timer !== undefined) this.timers.clearTimeout(this.timer);
     this.timer = undefined;
   }
   speed(fps: number) {

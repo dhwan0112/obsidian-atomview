@@ -28,3 +28,7 @@ Public-check outcomes for this snapshot are recorded in VALIDATION.md after the 
 ## 0.1.3 release regression
 
 See VALIDATION.md for the exact release checks and boundaries. Official lint: zero errors / 29 warnings; unit tests 45/45; browser checks 21/21; bundle and audit passed. Actual Obsidian smoke confirmed synthetic dump renderer, frame movement, q range and eventual tab/widget cleanup. New cross-platform and extended-duration verification NOT RUN; community review acceptance NOT VERIFIED.
+
+## 0.1.4
+
+See VALIDATION.md for exact checks. Local 46/46 tests and 21/21 browser checks passed, lint zero errors (8 sentence-case warnings). Owner-window scheduling/cancellation regression passed. Actual Obsidian synthetic render/q/frame/cleanup and declarative definitions verified via CLI. Settings search UI, separate popout GUI, cross-platform and long-duration validation NOT RUN. Attested release workflow results are recorded separately when run.

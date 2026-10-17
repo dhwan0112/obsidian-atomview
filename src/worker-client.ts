@@ -1,13 +1,16 @@
+import { timersFor } from "./timers.ts";
+import type { TimerHost, TimerHandle } from "./timers.ts";
 import type { Dataset, Format } from "./model.ts";
 import { estimatedFrameBytes } from "./model.ts";
 declare const ATOMVIEW_WORKER: string;
 /** Persistent local parser worker; cancellation terminates CPU work and revokes its asset. */
 export class ParserClient {
+  constructor(private readonly timers: TimerHost = timersFor()) {}
   private worker?: Worker;
   private disposed = false;
   private url?: string;
   private reject?: (e: Error) => void;
-  private timeout?: ReturnType<typeof setTimeout>;
+  private timeout?: TimerHandle;
   parse(
     text: string,
     source: string,
@@ -26,7 +29,7 @@ export class ParserClient {
           this.worker = new Worker(this.url);
         }
         const w = this.worker;
-        this.timeout = setTimeout(
+        this.timeout = this.timers.setTimeout(
           () => this.cancel("Parsing exceeded 30 second limit"),
           30000,
         );
@@ -42,7 +45,7 @@ export class ParserClient {
           try {
             const data = e.data;
             if (data.error) {
-              clearTimeout(this.timeout);
+              this.timers.clearTimeout(this.timeout);
               this.timeout = undefined;
               this.reject = undefined;
               reject(Error(data.error));
@@ -67,7 +70,7 @@ export class ParserClient {
               d.frames.forEach((f, i) =>
                 estimatedFrameBytes.set(f, data.costs![i]),
               );
-            clearTimeout(this.timeout);
+            this.timers.clearTimeout(this.timeout);
             this.timeout = undefined;
             this.reject = undefined;
             resolve(d);
@@ -92,7 +95,7 @@ export class ParserClient {
   cancel(message = "Parsing cancelled") {
     const reject = this.reject;
     this.reject = undefined;
-    if (this.timeout) clearTimeout(this.timeout);
+    if (this.timeout) this.timers.clearTimeout(this.timeout);
     this.timeout = undefined;
     this.worker?.terminate();
     this.worker = undefined;

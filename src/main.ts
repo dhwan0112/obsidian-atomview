@@ -1,3 +1,5 @@
+import { timersFor } from "./timers.ts";
+import type { TimerHandle } from "./timers.ts";
 import {
   Plugin,
   FileView,
@@ -6,10 +8,14 @@ import {
   MarkdownRenderChild,
   Notice,
   PluginSettingTab,
-  Setting,
   Modal,
 } from "obsidian";
-import type { App, WorkspaceLeaf, ViewStateResult } from "obsidian";
+import type {
+  App,
+  WorkspaceLeaf,
+  ViewStateResult,
+  SettingDefinitionItem,
+} from "obsidian";
 import { readFile, stat } from "node:fs/promises";
 import { config, serialize } from "./config.ts";
 import type { ViewConfig } from "./config.ts";
@@ -50,13 +56,16 @@ function errorText(e: unknown): string {
 }
 export class AtomWidget extends MarkdownRenderChild {
   private readonly gate = new RequestGate();
-  private readonly parser = new ParserClient();
+  private readonly timers = timersFor(
+    this.containerEl.ownerDocument.defaultView,
+  );
+  private readonly parser = new ParserClient(this.timers);
   private observer?: IntersectionObserver;
   private controller?: TrajectoryController | LazyTrajectoryController;
   private stream?: DumpFrameSource;
   private currentFrame?: Frame;
   private displayedIndex?: number;
-  private hiddenTimer?: ReturnType<typeof setTimeout>;
+  private hiddenTimer?: TimerHandle;
   private indexStatus?: HTMLElement;
   private rangeReference?: number;
   private rangeAbort?: AbortController;
@@ -369,12 +378,12 @@ export class AtomWidget extends MarkdownRenderChild {
     );
     this.observer = new IntersectionObserver((entries) => {
       this.visible = entries.some((e) => e.isIntersecting);
-      if (this.hiddenTimer) clearTimeout(this.hiddenTimer);
+      if (this.hiddenTimer) this.timers.clearTimeout(this.hiddenTimer);
       if (!this.visible) {
         this.controller?.pause();
         this.play.textContent = "Play";
         this.renderer?.pause();
-        this.hiddenTimer = setTimeout(() => {
+        this.hiddenTimer = this.timers.setTimeout(() => {
           if (!this.visible) this.background(() => this.releaseViewer(true));
         }, 300);
       } else {
@@ -591,8 +600,9 @@ export class AtomWidget extends MarkdownRenderChild {
             (i, signal) => ownStream.getFrame(i, signal),
             changed,
             (e) => this.error(e),
+            this.timers,
           )
-        : new TrajectoryController(dataset, changed);
+        : new TrajectoryController(dataset, changed, this.timers);
       this.controller.speed(this.playbackFps);
       this.slider.max = String(frameCount - 1);
       await this.controller.setFrame(this.cfg.frame);
@@ -656,7 +666,7 @@ export class AtomWidget extends MarkdownRenderChild {
         !w.releasing &&
         !w.manualReleased
       )
-        setTimeout(() => {
+        this.timers.setTimeout(() => {
           if (!w.started && w.visible && !w.disposed && !w.manualReleased)
             w.background(() => w.loadSource());
         }, 0);
@@ -779,7 +789,7 @@ export class AtomWidget extends MarkdownRenderChild {
     if (this.disposed) return;
     this.disposed = true;
     this.observer?.disconnect();
-    if (this.hiddenTimer) clearTimeout(this.hiddenTimer);
+    if (this.hiddenTimer) this.timers.clearTimeout(this.hiddenTimer);
     this.gate.dispose();
     this.loadAbort?.abort();
     this.rangeAbort?.abort();
@@ -944,36 +954,41 @@ class SettingsTab extends PluginSettingTab {
   ) {
     super(app, plugin);
   }
-  display() {
-    this.containerEl.replaceChildren();
-    new Setting(this.containerEl)
-      .setName("Automatically associate .data")
-      .setDesc(
-        "Off by default. Applies after plugin reload; file content is still validated as LAMMPS. Existing extension registrations are never overridden.",
-      )
-      .addToggle((t) =>
-        t.setValue(this.plugin.settings.autoData).onChange(async (v) => {
-          this.plugin.settings.autoData = v;
-          await this.plugin.saveData(this.plugin.settings);
-        }),
-      );
-    for (const [id, entry] of Object.entries(
-      this.plugin.settings.externalSources ?? {},
-    )) {
-      new Setting(this.containerEl)
-        .setName(`External file: ${entry.canonical.split("/").pop()}`)
-        .setDesc(`${id} · ${entry.canonical}`)
-        .addButton((b) =>
-          b.setButtonText("Revoke").onClick(async () => {
-            delete this.plugin.settings.externalSources[id];
-            await this.plugin.saveData(this.plugin.settings);
-            await Promise.all(
-              [...this.plugin.widgets].map((w) => w.revokeExternal(id)),
+  getSettingDefinitions(): SettingDefinitionItem[] {
+    return [
+      {
+        name: "Automatically associate .data",
+        desc: "Off by default. Applies after plugin reload; file content is validated. Existing extension registrations are preserved.",
+        control: { type: "toggle", key: "autoData", defaultValue: false },
+      },
+      ...Object.entries(this.plugin.settings.externalSources).map(
+        ([id, entry]): SettingDefinitionItem => ({
+          name: `External file: ${entry.canonical.split("/").pop()}`,
+          desc: `${id} · ${entry.canonical}`,
+          render: (setting) => {
+            setting.addButton((b) =>
+              b.setButtonText("Revoke").onClick(async () => {
+                delete this.plugin.settings.externalSources[id];
+                await this.plugin.saveData(this.plugin.settings);
+                await Promise.all(
+                  [...this.plugin.widgets].map((w) => w.revokeExternal(id)),
+                );
+                this.update();
+              }),
             );
-            this.update();
-          }),
-        );
-    }
+          },
+        }),
+      ),
+    ];
+  }
+  getControlValue(key: string): unknown {
+    return key === "autoData" ? this.plugin.settings.autoData : undefined;
+  }
+  async setControlValue(key: string, value: unknown) {
+    if (key !== "autoData" || typeof value !== "boolean")
+      throw Error("Invalid setting");
+    this.plugin.settings.autoData = value;
+    await this.plugin.saveData(this.plugin.settings);
   }
 }
 export default class AtomViewPlugin extends Plugin {

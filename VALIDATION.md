@@ -44,3 +44,15 @@ Remaining review items: scope-neutral timers used by shared Node/worker code, se
 - `manifest.json`: `035d820efed1f4a034c8ba771349bdfbbf51d91f5653731c798e8b8ec03d0445`
 - `styles.css`: `8af072aa08c30c2d7502766db7e3a33dacbd3d600c1d2f5410c32fcc2fe57885`
 - `THIRD_PARTY_LICENSES.txt`: `871f5f1978c409b6ab62c145654b1f493a893ae49f241cca9b4cb87302c5af0a`
+
+## 0.1.4 review follow-up
+
+Local checks on Linux / Node 22.22.1, 2026-10-17:
+
+- `npm run validate`: exit 0; official ESLint zero errors / 8 sentence-case warnings, strict typecheck, **46/46** tests and production build. All reported timer, settings-definition, redundant-assertion and unused-import findings addressed without disabling rules.
+- `npm run test:browser`: exit 0; **21/21** mocked-host real WebGL/worker checks, zero attempted HTTP(S) requests.
+- `node scripts/check-bundle.mjs`: exit 0.
+- `GITHUB_REF_NAME=0.1.4 node scripts/check-release.mjs`: exit 0. Prefix `v0.1.4` and mismatched `0.1.3` both rejected with exit 1.
+- Actual Linux desktop Obsidian: plugin-only backup/deploy/reload reports 0.1.4; declarative settings exposes the autoData toggle and two existing registration rows; synthetic dump renders with WebGL, displays frame 1 and q range [-0.4, 0.2], camera finite; after close zero synthetic tabs/widgets and zero active viewers. Settings search UI and separate popout/migration GUI were NOT RUN.
+
+New release workflow is pinned to official GitHub Action commits, validates tag/manifest/package versions, runs local-equivalent checks in an isolated public runner, attests only assets it builds, and publishes the three standard Obsidian assets. Workflow execution, attestation verification and directory review remain pending at this commit; no generated attestation is claimed until those commands succeed. Filesystem/clipboard notices describe required capabilities and remain expected. Prior release assets are preserved.

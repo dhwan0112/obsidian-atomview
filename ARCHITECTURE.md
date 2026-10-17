@@ -55,6 +55,8 @@ Explicit Release stays released across visibility changes until the user request
 
 ## Desktop Mol* scheduler
 
-Both the bundled parser worker and renderer replace Mol* 5.13.1's legacy scheduler module at build time with `src/molstar-scheduler.ts`. The replacement implements the same immediate/cancel/delay exports using cancellable timer macrotasks; it removes the obsolete IE script-element fallback and persistent message listeners rather than disguising them. Scientific parsers are unchanged. The browser harness uses the identical resolver. Runtime timers are scope-neutral because readers/controllers also execute in workers and independent Node tests; owner-window timer refinement remains a lint warning. `main.js` includes MIT and bundled dependency attribution because community installs do not fetch extra license assets.
+Both the bundled parser worker and renderer replace Mol* 5.13.1's legacy scheduler module at build time with `src/molstar-scheduler.ts`. The replacement implements the same immediate/cancel/delay exports using cancellable timer macrotasks; it removes the obsolete IE script-element fallback and persistent message listeners rather than disguising them. Scientific parsers are unchanged. The browser harness uses the identical resolver. View timers capture their owner window once and use the same host for cancellation. Controllers and the parser client receive that host explicitly. Shared worker/standalone reader code uses native timers without requiring a DOM. Migration of an already-running view to a different window is not separately verified. `main.js` includes MIT and bundled dependency attribution because community installs do not fetch extra license assets.
 
 Plugin unload disposes registered widgets/resources without detaching workspace leaves. Obsidian owns view removal and restoration.
+
+Settings use Obsidian 1.13+ declarative definitions and explicit plugin storage accessors; the minimum supported app remains 1.14.4.

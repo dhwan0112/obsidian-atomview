@@ -151,19 +151,20 @@ export class MolstarAdapter {
     const elements = frame.atoms.map(
       (a) => a.element ?? (a.type ? config.elementMap[a.type] : undefined),
     );
-    const colors = frame.atoms.map((a, i) =>
-      Color(
+    const colors = frame.atoms.map((a, i) => {
+      const element = elements[i];
+      const atomColor =
         a.id === config.selectedId
           ? 0xffff00
           : values
             ? scalarColor(values[i], d.range!)
             : config.colorBy === "type"
-              ? categorical(a.type ?? elements[i] ?? "unknown")
-              : elements[i]
-                ? (palette[elements[i]!] ?? categorical(elements[i]!))
-                : categorical(a.type ?? "unknown"),
-      ),
-    );
+              ? categorical(a.type ?? element ?? "unknown")
+              : element
+                ? (palette[element] ?? categorical(element))
+                : categorical(a.type ?? "unknown");
+      return Color(atomColor);
+    });
     for (let i = 0; i < frame.atoms.length; i++) {
       const p = frame.atoms[i].position;
       builder.add(p[0], p[1], p[2], i);

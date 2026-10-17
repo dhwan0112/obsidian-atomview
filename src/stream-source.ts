@@ -1,3 +1,4 @@
+import { timersFor } from "./timers.ts";
 import { open, realpath, stat } from "node:fs/promises";
 import type { FileHandle } from "node:fs/promises";
 import type { Dataset, Frame } from "./model.ts";
@@ -32,7 +33,7 @@ export function clearIndexCache() {
   indexCache.clear();
 }
 type Parse = (text: string, source: string) => Promise<Dataset>;
-const yieldUI = () => new Promise<void>((r) => setTimeout(r, 0));
+const yieldUI = () => new Promise<void>((r) => timersFor().setTimeout(r, 0));
 
 /** Byte-indexed, read-only LAMMPS source. The index validates framing; atom values are validated on access. */
 export class DumpFrameSource {

@@ -89,3 +89,9 @@ Playback multipliers/stride controls, configurable palettes, explicit editing wi
 ## License
 
 MIT — Copyright (c) 2026 Kim Donghwan. Mol*, YAML and bundled dependencies retain their licenses and attributions; see [THIRD_PARTY.md](THIRD_PARTY.md) and the release's `THIRD_PARTY_LICENSES.txt`.
+
+## Permissions and release provenance
+
+Runtime filesystem operations read vault-contained sources or one explicitly registered external file. Registration grants no directory-wide access and resolved paths are checked again on use. AtomView does not write to structure sources. Settings are persisted through Obsidian's plugin API. The clipboard feature only writes a user-requested current-view block; it does not read clipboard contents. The directory may still display its broad filesystem and clipboard notices for these capabilities.
+
+Releases from 0.1.4 are prepared for the attested GitHub Actions workflow. It validates the exact tag/manifest/package versions, runs checks, builds and attests `main.js`, `manifest.json` and `styles.css`, then publishes only those assets. Required licenses are embedded in `main.js`. Verify a downloaded asset with `gh attestation verify main.js --repo dhwan0112/obsidian-atomview`. Attestation availability is confirmed only after a successful workflow run; see VALIDATION.md for recorded results.
