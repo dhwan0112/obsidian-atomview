@@ -1,0 +1,8 @@
+HEADER    ATOMVIEW SYNTHETIC FIXTURE
+MODEL        1
+ATOM      1  O   HOH A   1       0.000   0.000   0.000  1.00 20.00           O  
+ENDMDL
+MODEL        2
+ATOM      1  O   HOH A   1       1.000   0.000   0.000  1.00 20.00           O  
+ENDMDL
+END

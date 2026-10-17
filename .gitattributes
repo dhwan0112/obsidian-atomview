@@ -1,0 +1,2 @@
+# PDB is a fixed-width scientific format; preserve trailing column padding.
+fixtures/*.pdb whitespace=-blank-at-eol

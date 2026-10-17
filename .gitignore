@@ -1,0 +1,9 @@
+node_modules/
+dist/
+test-artifacts/
+*.log
+__pycache__/
+*.pyc
+.env
+.env.*
+data.json

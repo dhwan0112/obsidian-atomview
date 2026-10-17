@@ -1,0 +1,64 @@
+.atomview {
+  border: 1px solid var(--background-modifier-border, #888);
+  border-radius: 6px;
+  padding: 8px;
+  background: var(--background-primary, #fff);
+  color: var(--text-normal, #222);
+  font-size: 13px;
+  contain: layout style;
+}
+.atomview .atomview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.atomview input:not([type="checkbox"]):not([type="range"]) {
+  max-width: 180px;
+}
+.atomview .atomview-controls input[type="number"] {
+  width: 95px;
+}
+.atomview .atomview-viewport {
+  width: 100%;
+  position: relative;
+  min-height: 180px;
+  overflow: hidden;
+  background: #18212b;
+}
+.atomview .atomview-viewport canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.atomview .atomview-status {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 6px 0;
+  max-height: 130px;
+  overflow: auto;
+}
+.atomview .atomview-info {
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  background: var(--background-secondary, #eee);
+  padding: 6px;
+}
+.atomview .atomview-legend {
+  padding: 5px;
+  margin-top: 4px;
+}
+.atomview .atomview-scalar {
+  border-bottom: 8px solid transparent;
+  border-image: linear-gradient(to right, #0050ff, #7fb47f, #ff5000) 1;
+}
+.atomview details {
+  margin: 6px 0;
+}
+.atomview textarea {
+  width: 100%;
+  min-height: 40px;
+}

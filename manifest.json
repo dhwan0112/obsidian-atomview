@@ -1,0 +1,10 @@
+{
+  "id": "atomview",
+  "name": "AtomView",
+  "version": "0.1.0",
+  "minAppVersion": "1.14.4",
+  "description": "Local atom structures and MD trajectories with preserved scientific metadata.",
+  "author": "Kim Donghwan",
+  "isDesktopOnly": true,
+  "authorUrl": "https://github.com/dhwan0112"
+}

@@ -1,0 +1,13 @@
+{
+  "owner": "obsidian-atomview",
+  "purpose": "Synthetic fixtures only. PDB/CIF not yet parsed.",
+  "files": [
+    "fe-o-q.lammpstrj",
+    "fractional.cif",
+    "iron.data",
+    "models.pdb",
+    "properties.xyz",
+    "truncated.xyz",
+    "water.xyz"
+  ]
+}
