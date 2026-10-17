@@ -39,7 +39,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
   text?: string,
   cls?: string,
 ): HTMLElementTagNameMap[K] {
-  const e = document.createElement(tag);
+  const e = parent.createEl(tag);
   if (text !== undefined) e.textContent = text;
   if (cls) e.className = cls;
   parent.append(e);
@@ -239,7 +239,7 @@ export class AtomWidget extends MarkdownRenderChild {
       try {
         this.cfg = config({
           ...this.cfg,
-          elementMap: JSON.parse(map.value),
+          elementMap: JSON.parse(map.value) as unknown,
           atomStyle: style.value || undefined,
         });
         this.manualReleased = false;
@@ -876,7 +876,7 @@ class SourceModal extends Modal {
     el(this.contentEl, "h2", "Open local structure with AtomView");
     const input = el(this.contentEl, "input");
     input.placeholder = "Vault-root-relative path";
-    input.style.width = "100%";
+    input.classList.add("atomview-source-input");
     const open = el(this.contentEl, "button", "Open");
     open.onclick = () => {
       try {
@@ -907,7 +907,7 @@ class ExternalSourceModal extends Modal {
     );
     const input = el(this.contentEl, "input");
     input.placeholder = "Absolute local file path";
-    input.style.width = "100%";
+    input.classList.add("atomview-source-input");
     const status = el(this.contentEl, "p");
     const button = el(this.contentEl, "button", "Register and open this file");
     button.onclick = async () => {
@@ -970,7 +970,7 @@ class SettingsTab extends PluginSettingTab {
             await Promise.all(
               [...this.plugin.widgets].map((w) => w.revokeExternal(id)),
             );
-            this.display();
+            this.update();
           }),
         );
     }
@@ -985,7 +985,34 @@ export default class AtomViewPlugin extends Plugin {
     externalSources: Record<string, RegisteredSource>;
   } = { autoData: false, externalSources: {} };
   async onload() {
-    this.settings = { ...this.settings, ...(await this.loadData()) };
+    const saved: unknown = await this.loadData();
+    if (saved && typeof saved === "object") {
+      const values = saved as Record<string, unknown>;
+      if (typeof values.autoData === "boolean")
+        this.settings.autoData = values.autoData;
+      if (
+        values.externalSources &&
+        typeof values.externalSources === "object"
+      ) {
+        for (const [id, value] of Object.entries(values.externalSources)) {
+          if (
+            !/^external:[a-f0-9]{24}$/.test(id) ||
+            !value ||
+            typeof value !== "object"
+          )
+            continue;
+          const entry = value as Record<string, unknown>;
+          if (
+            typeof entry.path === "string" &&
+            typeof entry.canonical === "string"
+          )
+            this.settings.externalSources[id] = {
+              path: entry.path,
+              canonical: entry.canonical,
+            };
+        }
+      }
+    }
     this.registerView(VIEW, (leaf) => new AtomFileView(leaf, this));
     for (const extension of [
       "lammpstrj",
@@ -998,11 +1025,8 @@ export default class AtomViewPlugin extends Plugin {
     ]) {
       try {
         this.registerExtensions([extension], VIEW);
-      } catch (e) {
-        console.info(
-          `AtomView left existing .${extension} association unchanged`,
-          e,
-        );
+      } catch {
+        // Existing extension owners retain their association; explicit open remains available.
       }
     }
     this.registerMarkdownCodeBlockProcessor("atomview", (source, root, ctx) => {
@@ -1034,7 +1058,7 @@ export default class AtomViewPlugin extends Plugin {
     );
     this.addCommand({
       id: "open-local-structure",
-      name: "Open with AtomView",
+      name: "Open local structure",
       callback: () => new SourceModal(this.app, this).open(),
     });
     this.addCommand({
@@ -1067,7 +1091,6 @@ export default class AtomViewPlugin extends Plugin {
   }
   onunload() {
     for (const widget of [...this.widgets]) widget.unload();
-    this.app.workspace.detachLeavesOfType(VIEW);
     clearIndexCache();
   }
 }

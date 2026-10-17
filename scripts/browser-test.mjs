@@ -1,3 +1,4 @@
+import { modernMolstarScheduler } from "./molstar-build.mjs";
 import { build } from "esbuild";
 import { chromium } from "playwright";
 import fs from "node:fs/promises";
@@ -25,6 +26,7 @@ fixtures["varying-q.lammpstrj"] = [0, 1]
   )
   .join("");
 const worker = await build({
+  plugins: [modernMolstarScheduler],
   entryPoints: ["src/parser-worker.ts"],
   bundle: true,
   format: "iife",
@@ -43,6 +45,7 @@ await build({
     FIXTURES: JSON.stringify(fixtures),
   },
   plugins: [
+    modernMolstarScheduler,
     {
       name: "test-only-shims",
       setup(b) {

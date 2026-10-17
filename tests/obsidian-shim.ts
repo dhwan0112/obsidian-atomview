@@ -63,3 +63,12 @@ export class Notice {
 export class PluginSettingTab {}
 export class Setting {}
 export class Modal {}
+
+// Obsidian DOM helper, scoped to the element's owner document.
+HTMLElement.prototype.createEl = function <
+  K extends keyof HTMLElementTagNameMap,
+>(this: HTMLElement, tag: K) {
+  const child = this.ownerDocument.createElement(tag);
+  this.append(child);
+  return child;
+};

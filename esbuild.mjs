@@ -1,3 +1,4 @@
+import { modernMolstarScheduler } from "./scripts/molstar-build.mjs";
 import { build } from "esbuild";
 import {
   mkdir,
@@ -9,6 +10,7 @@ import {
 const worker = await build({
   entryPoints: ["src/parser-worker.ts"],
   bundle: true,
+  plugins: [modernMolstarScheduler],
   format: "iife",
   target: "es2022",
   platform: "browser",
@@ -21,6 +23,7 @@ await mkdir("dist", { recursive: true });
 const main = await build({
   entryPoints: ["src/main.ts"],
   bundle: true,
+  plugins: [modernMolstarScheduler],
   external: ["obsidian", "electron", "fs", "node:fs/promises", "node:path"],
   format: "cjs",
   target: "es2022",
@@ -61,3 +64,8 @@ for (const root of [...roots].sort()) {
     );
 }
 await writeFile("dist/THIRD_PARTY_LICENSES.txt", licenses.join("\n"));
+
+// Community installs fetch only runtime assets; keep required attribution inside main.js too.
+const legal = (await readFile("LICENSE", "utf8")) + "\n" + licenses.join("\n");
+await writeFile("dist/main.js", (await readFile("dist/main.js", "utf8")) +
+  "\n/*!\n" + legal.replaceAll("*/", "* /") + "\n*/\n");

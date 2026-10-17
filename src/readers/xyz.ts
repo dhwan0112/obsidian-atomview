@@ -52,7 +52,7 @@ export function xyz(text: string): Dataset {
         b.some((x) => !["T", "F", "true", "false", "1", "0"].includes(x))
       )
         throw Error("Invalid pbc");
-      cell!.pbc = b.map((x) => ["T", "true", "1"].includes(x)) as Cell["pbc"];
+      cell.pbc = b.map((x) => ["T", "true", "1"].includes(x)) as Cell["pbc"];
     }
     const decl = (header.Properties ?? "species:S:1:pos:R:3").split(":");
     if (decl.length % 3) throw Error("Invalid Properties declaration");

@@ -24,3 +24,7 @@ Synthetic file tabs and Reading-view embeds were checked in Linux desktop Obsidi
 Windows/macOS, mobile, advanced Live Preview, total Electron/GPU peak memory, boundary-size stress and actual full-app offline mode have not been verified. The isolated renderer's blocked-network result must not be represented as a full-app offline test. Physical OS clipboard readback remains a validation gap; manual-copy fallback is tested. No ASE/OVITO cross-validation is claimed.
 
 Public-check outcomes for this snapshot are recorded in VALIDATION.md after the commands are executed. No unrun checks should be reported as passing.
+
+## 0.1.3 release regression
+
+See VALIDATION.md for the exact release checks and boundaries. Official lint: zero errors / 29 warnings; unit tests 45/45; browser checks 21/21; bundle and audit passed. Actual Obsidian smoke confirmed synthetic dump renderer, frame movement, q range and eventual tab/widget cleanup. New cross-platform and extended-duration verification NOT RUN; community review acceptance NOT VERIFIED.

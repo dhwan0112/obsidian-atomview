@@ -15,7 +15,6 @@ import { Vec3 } from "molstar/lib/mol-math/linear-algebra.js";
 import { Sphere3D } from "molstar/lib/mol-math/geometry.js";
 import { OrderedSet } from "molstar/lib/mol-data/int.js";
 import { Color } from "molstar/lib/mol-util/color/index.js";
-import type { Camera } from "molstar/lib/mol-canvas3d/camera.js";
 import type { Frame, V3 } from "./model.ts";
 import { cart } from "./model.ts";
 import type { ViewConfig } from "./config.ts";
@@ -78,7 +77,7 @@ export class MolstarAdapter {
     private readonly container: HTMLDivElement,
     onSelect: (id: string) => void,
   ) {
-    const canvas = document.createElement("canvas");
+    const canvas = container.createEl("canvas");
     canvas.setAttribute(
       "aria-label",
       "AtomView 3D structure: drag to rotate, right drag to pan, wheel to zoom",
@@ -208,7 +207,7 @@ export class MolstarAdapter {
     this.canvas3d.requestCameraReset({ durationMs: 0 });
   }
   camera(): ViewConfig["camera"] {
-    return JSON.parse(JSON.stringify(this.canvas3d.camera.getSnapshot()));
+    return structuredClone(this.canvas3d.camera.getSnapshot());
   }
   restore(camera: NonNullable<ViewConfig["camera"]>) {
     this.canvas3d.camera.setState(

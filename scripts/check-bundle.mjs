@@ -38,8 +38,16 @@ const sandbox = {
   },
 };
 sandbox.exports = sandbox.module.exports;
+const bundle = await fs.readFile("dist/main.js", "utf8");
+// Inspect both the main runtime and its JSON-escaped embedded worker.
+const unescaped = bundle.replaceAll('\\"', '"').replaceAll("\\'", "'");
+assert.doesNotMatch(
+  unescaped,
+  /createElement\(\s*['"]script['"]/,
+  "Runtime must not retain Mol* legacy script-element scheduler",
+);
 try {
-  vm.runInNewContext(await fs.readFile("dist/main.js", "utf8"), sandbox, {
+  vm.runInNewContext(bundle, sandbox, {
     filename: "deployed-main.js",
     timeout: 10000,
   });

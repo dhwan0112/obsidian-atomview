@@ -10,3 +10,4 @@
 - Run npm run validate, npm run test:browser and node scripts/check-bundle.mjs before release. Mocked browser checks are not actual Obsidian integration tests.
 - Test on actual desktop Obsidian separately using synthetic notes; document OS/version and limitations. Never claim hours-long stability or total GPU memory bounds from short samples.
 - Commits use only the maintainer's explicitly configured Git author/committer identity. Do not add assistant co-author attribution.
+- Run `npm run lint` before release; keep official Obsidian ESLint errors at zero. Do not detach leaves on unload or reintroduce script-element scheduler fallbacks. Keep main/worker scheduler resolution identical in production and browser tests.

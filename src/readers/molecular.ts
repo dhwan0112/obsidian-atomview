@@ -1,3 +1,4 @@
+import { Column } from "molstar/lib/mol-data/db.js";
 import { CIF } from "molstar/lib/mol-io/reader/cif.js";
 import { parsePDB } from "molstar/lib/mol-io/reader/pdb/parser.js";
 import { Cell as SpacegroupCell } from "molstar/lib/mol-math/geometry/spacegroup/cell.js";
@@ -34,7 +35,6 @@ export async function pdb(text: string): Promise<Dataset> {
   let model = "1";
   let explicit = false;
   let inModel = false;
-  let ignored = false;
   const finish = () => {
     if (atoms.length) {
       frames.push({
@@ -145,7 +145,7 @@ export async function cif(text: string): Promise<Dataset> {
   };
   const get = (name: string, i = 0, optional = false) => {
     const v = f(name);
-    if (!v || v.valueKind(i) !== 0) {
+    if (!v || v.valueKind(i) !== Column.ValueKind.Present) {
       if (optional) return undefined;
       throw Error(`Missing CIF field ${name}`);
     }

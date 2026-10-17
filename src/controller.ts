@@ -5,8 +5,11 @@ export class TrajectoryController {
   index = 0;
   fps = 5;
   readonly dataset: Dataset;
-  private change: (frame: Frame, index: number) => void;
-  constructor(dataset: Dataset, change: (frame: Frame, index: number) => void) {
+  private change: (frame: Frame, index: number) => void | Promise<void>;
+  constructor(
+    dataset: Dataset,
+    change: (frame: Frame, index: number) => void | Promise<void>,
+  ) {
     this.dataset = dataset;
     this.change = change;
   }
@@ -22,17 +25,19 @@ export class TrajectoryController {
     )
       throw Error("Frame out of range (0-based)");
     this.index = index;
-    this.change(this.dataset.frames[index], index);
+    return this.change(this.dataset.frames[index], index);
   }
   step(delta: number) {
-    this.setFrame(
+    return this.setFrame(
       (this.index + delta + this.dataset.frames.length) %
         this.dataset.frames.length,
     );
   }
   play() {
     if (this.disposed || this.timer || this.dataset.frames.length < 2) return;
-    this.timer = setInterval(() => this.step(1), 1000 / this.fps);
+    this.timer = setInterval(() => {
+      void this.step(1);
+    }, 1000 / this.fps);
   }
   pause() {
     if (this.timer !== undefined) clearInterval(this.timer);
@@ -168,11 +173,15 @@ export class LazyTrajectoryController {
       await this.step(1);
       if (this.running && !this.disposed && epoch === this.playbackEpoch)
         this.timer = setTimeout(
-          tick,
+          () => {
+            void tick();
+          },
           Math.max(0, 1000 / this.fps - (Date.now() - start)),
         );
     };
-    this.timer = setTimeout(tick, 1000 / this.fps);
+    this.timer = setTimeout(() => {
+      void tick();
+    }, 1000 / this.fps);
   }
   pause() {
     this.running = false;

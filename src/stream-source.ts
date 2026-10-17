@@ -293,7 +293,8 @@ export class DumpFrameSource {
     if (bytes <= 16 * 1024 ** 2) {
       let total = [...indexCache.values()].reduce((n, x) => n + x.bytes, 0);
       while (indexCache.size && total + bytes > 16 * 1024 ** 2) {
-        const key = indexCache.keys().next().value!;
+        const key: string | undefined = [...indexCache.keys()][0];
+        if (key === undefined) break;
         total -= indexCache.get(key)!.bytes;
         indexCache.delete(key);
       }
@@ -369,7 +370,8 @@ export class DumpFrameSource {
         (this.cacheBytes + cost > STREAM_LIMITS.cache ||
           this.cache.size >= STREAM_LIMITS.cachedFrames)
       ) {
-        const key = this.cache.keys().next().value!;
+        const key: number | undefined = [...this.cache.keys()][0];
+        if (key === undefined) break;
         this.cacheBytes -= this.cache.get(key)!.bytes;
         this.cache.delete(key);
       }

@@ -52,3 +52,9 @@ Playback sessions have an epoch in addition to per-seek sequence tokens. Pause i
 Worker callbacks check both worker identity and request identity before touching pending state. Malformed position-buffer responses reject the request and terminate the worker; a disposed parser cannot restart. Initial load failures terminate idle parser workers. Cleanup attempts each Mol* resource independently so one failure does not skip all later disposals.
 
 Explicit Release stays released across visibility changes until the user requests Reload. Automatic suspension restores view state. Camera and requested FPS survive reload/release within the widget. Frame captions distinguish loading/failed requests from the last successfully rendered frame. Copy refuses a pending/failed scene; clipboard denial exposes the complete last generated block for manual copy. This fallback mitigates clipboard failure without claiming that physical clipboard readback is universally reliable.
+
+## Desktop Mol* scheduler
+
+Both the bundled parser worker and renderer replace Mol* 5.13.1's legacy scheduler module at build time with `src/molstar-scheduler.ts`. The replacement implements the same immediate/cancel/delay exports using cancellable timer macrotasks; it removes the obsolete IE script-element fallback and persistent message listeners rather than disguising them. Scientific parsers are unchanged. The browser harness uses the identical resolver. Runtime timers are scope-neutral because readers/controllers also execute in workers and independent Node tests; owner-window timer refinement remains a lint warning. `main.js` includes MIT and bundled dependency attribution because community installs do not fetch extra license assets.
+
+Plugin unload disposes registered widgets/resources without detaching workspace leaves. Obsidian owns view removal and restoration.

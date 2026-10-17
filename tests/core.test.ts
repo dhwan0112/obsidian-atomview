@@ -207,7 +207,9 @@ test("trajectory bounds, speed and cleanup", async () => {
   let count = 0;
   const c = new TrajectoryController(
     xyz("1\na\nFe 0 0 0\n1\nb\nFe 1 1 1"),
-    () => count++,
+    () => {
+      count++;
+    },
   );
   c.step(1);
   assert.equal(c.index, 1);

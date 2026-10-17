@@ -4,7 +4,7 @@ An experimental desktop Obsidian plugin for viewing local atomic structures and 
 
 Supports LAMMPS text dumps and data files, XYZ/basic extended XYZ, PDB, coreCIF and mmCIF. Everything runs locally: no Python server, CDN, OVITO/VMD installation or remote structure service is required.
 
-**Preview status:** tested in Linux desktop Obsidian 1.14.4. Windows/macOS execution is not yet verified; mobile is unsupported. AtomView is not yet listed in the Obsidian community directory.
+**Preview status:** tested in Linux desktop Obsidian 1.14.4. Windows/macOS execution is not yet verified; mobile is unsupported. The community directory listing is published, but automated review has not yet passed; in-app installation is not yet confirmed.
 
 ## Install
 
@@ -70,6 +70,7 @@ Node >=22 and npm are required for development, not for running the installed pl
 
 ```sh
 npm ci
+npm run lint
 npm run validate
 npx playwright install chromium
 npm run test:browser

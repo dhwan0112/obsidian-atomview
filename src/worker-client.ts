@@ -30,7 +30,14 @@ export class ParserClient {
           () => this.cancel("Parsing exceeded 30 second limit"),
           30000,
         );
-        w.onmessage = (e) => {
+        w.onmessage = (
+          e: MessageEvent<{
+            error?: string;
+            dataset?: Dataset;
+            positions?: ArrayBuffer;
+            costs?: number[];
+          }>,
+        ) => {
           if (this.worker !== w || this.reject !== reject) return;
           try {
             const data = e.data;
@@ -41,7 +48,7 @@ export class ParserClient {
               reject(Error(data.error));
               return;
             }
-            const d = data.dataset as Dataset;
+            const d = data.dataset;
             if (
               !d ||
               !Array.isArray(d.frames) ||
@@ -58,7 +65,7 @@ export class ParserClient {
               for (const a of f.atoms) a.position = [p[k++], p[k++], p[k++]];
             if (data.costs)
               d.frames.forEach((f, i) =>
-                estimatedFrameBytes.set(f, data.costs[i]),
+                estimatedFrameBytes.set(f, data.costs![i]),
               );
             clearTimeout(this.timeout);
             this.timeout = undefined;
@@ -78,7 +85,7 @@ export class ParserClient {
         ]);
       } catch (e) {
         this.cancel();
-        reject(e);
+        reject(e instanceof Error ? e : Error(String(e)));
       }
     });
   }

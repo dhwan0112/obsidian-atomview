@@ -1,5 +1,13 @@
+import type { Format } from "./model.ts";
 import { readStructure } from "./readers/index.ts";
-self.onmessage = async (e: MessageEvent) => {
+self.onmessage = async (
+  e: MessageEvent<{
+    bytes: ArrayBuffer;
+    source: string;
+    format?: Format;
+    style?: string;
+  }>,
+) => {
   const { bytes, source, format, style } = e.data;
   try {
     const dataset = await readStructure(

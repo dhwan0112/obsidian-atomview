@@ -74,7 +74,7 @@ export function config(raw: unknown): ViewConfig {
   if (
     r.format !== undefined &&
     !["lammps-dump", "lammps-data", "xyz", "pdb", "cif"].includes(
-      String(r.format),
+      typeof r.format === "string" ? r.format : "",
     )
   )
     throw Error("Unsupported format");
@@ -111,7 +111,9 @@ export function config(raw: unknown): ViewConfig {
     throw Error("Invalid vector component");
   if (
     r.rangeMode !== undefined &&
-    !["frame", "fixed"].includes(String(r.rangeMode))
+    !["frame", "fixed"].includes(
+      typeof r.rangeMode === "string" ? r.rangeMode : "",
+    )
   )
     throw Error("rangeMode must be fixed or frame");
   const colorRange = r.colorRange;
@@ -125,7 +127,9 @@ export function config(raw: unknown): ViewConfig {
     throw Error("Invalid colorRange");
   if (
     r.atomStyle !== undefined &&
-    !["atomic", "charge", "full"].includes(String(r.atomStyle))
+    !["atomic", "charge", "full"].includes(
+      typeof r.atomStyle === "string" ? r.atomStyle : "",
+    )
   )
     throw Error("Unsupported atomStyle");
   if (r.selectedId !== undefined && typeof r.selectedId !== "string")
@@ -159,14 +163,14 @@ export function config(raw: unknown): ViewConfig {
     frame,
     representation: "spheres",
     colorBy: (r.colorBy as string) ?? "element",
-    component: r.component as ViewConfig["component"],
+    component: r.component,
     showCell: (r.showCell as boolean) ?? true,
-    elementMap: { ...map } as Record<string, string>,
+    elementMap: { ...map },
     height,
     rangeMode: (r.rangeMode as ViewConfig["rangeMode"]) ?? "fixed",
     colorRange: colorRange as [number, number] | undefined,
     atomStyle: r.atomStyle as ViewConfig["atomStyle"],
-    selectedId: r.selectedId as string | undefined,
+    selectedId: r.selectedId,
     camera: r.camera as ViewConfig["camera"],
   };
 }
