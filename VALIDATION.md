@@ -15,6 +15,11 @@ The browser test is not an actual Obsidian integration test. Actual Linux Obsidi
 ## Built runtime SHA256
 
 - `main.js`: `279a0bcaecbe85b1c8204db5135708a20deccf5f2f4249e6c138f655ac1a99a3`
-- `manifest.json`: `2b4dca2a5f3ad21dbe4c8d94d83d966465715481bcc3f9c1ca2447268a992758`
+- `manifest.json`: `3a33e39ab755c6c33ee4ad14c67f14b12d3b51dc60318a707db3e1123c7845c9`
 - `styles.css`: `6306b70f465681bb6b9fd054d086c2fc3d9aefd07df8aaf5125fcc2c09a9e237`
 - `THIRD_PARTY_LICENSES.txt`: `871f5f1978c409b6ab62c145654b1f493a893ae49f241cca9b4cb87302c5af0a`
+
+## 0.1.1 release metadata repair
+
+Manifest/package version advanced together to 0.1.1 to publish a new non-prerelease event after the directory reported no matching release for 0.1.0. Runtime source is unchanged. Re-ran `npm run validate` (exit 0; 44/44), and `node scripts/check-bundle.mjs` (exit 0). Directory acceptance remains unverified.
+Browser regression: `npm run test:browser` exit 0, 21 checks, zero HTTP(S) attempts; mocked Obsidian host only.
